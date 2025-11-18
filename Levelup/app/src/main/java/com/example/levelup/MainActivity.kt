@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.example.levelup.navigation.AppNavigation
 import com.example.levelup.ui.theme.LevelUpTheme
 
+//aqui empieza
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
