@@ -1,9 +1,14 @@
-import com.example.apirest.data.model.Post
-import com.example.apirest.data.remote.RetrofitInstance
+package com.example.levelup.Repository
+
+import com.example.levelup.data.model.Post
+import com.example.levelup.data.Remote.RetrofitInstance
 
 class PostRepository {
-    // Función que obtiene los posts desde la API [cite: 117]
-    suspend fun getPosts(): List<Post> { [cite: 119]
-        return RetrofitInstance.api.getPosts() [cite: 120]
+    suspend fun getPosts(): List<Post> {
+        return RetrofitInstance.api.getPosts()
+    }
+
+    suspend fun createPost(post: Post): Post {
+        return RetrofitInstance.api.createPost(post)
     }
 }

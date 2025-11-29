@@ -1,13 +1,15 @@
+package com.example.levelup.data.Remote // 👈 Esta línea es la que hace la magia
+
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.levelup.data.Remote.ApiService // Asegúrate de que ApiService también tenga su paquete bien puesto
 
 object RetrofitInstance {
-    // se instancia el servicio de la API una sola vez [cite: 104]
     val api: ApiService by lazy {
-        Retrofit.Builder() [cite: 107]
-        .baseUrl("https://jsonplaceholder.typicode.com") // URL base de la API [cite: 109, 247]
-        .addConverterFactory(GsonConverterFactory.create()) // Conversor JSON [cite: 109]
-        .build()
-        .create(ApiService::class.java) // Implementa la interfaz ApiService [cite: 110]
+        Retrofit.Builder()
+            .baseUrl("https://jsonplaceholder.typicode.com")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 }

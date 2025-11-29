@@ -1,31 +1,49 @@
+package com.example.levelup.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.apirest.data.model.Post
-import com.example.apirest.repository.PostRepository
+import com.example.levelup.data.model.Post
+import com.example.levelup.Repository.PostRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PostViewModel: ViewModel() {
-    private val repository = PostRepository() [cite: 136, 137]
+class PostViewModel : ViewModel() {
 
-    // Flujo mutable que contiene la lista de posts [cite: 138]
-    private val _postList = MutableStateFlow<List<Post>>(emptyList()) [cite: 140]
+    private val repository = PostRepository()
 
-    // Flujo público de solo lectura [cite: 141]
-    val postList: StateFlow<List<Post>> = _postList [cite: 143]
+    private val _postList = MutableStateFlow<List<Post>>(emptyList())
+    val postList: StateFlow<List<Post>> = _postList
 
-    init { // Se llama automáticamente al iniciar [cite: 144, 145]
-        fetchPosts() [cite: 147]
+    init {
+        fetchPosts()
     }
 
-    // Función que obtiene los datos en segundo plano [cite: 148]
     private fun fetchPosts() {
-        viewModelScope.launch { [cite: 151]
-            try { [cite: 152]
-                _postList.value = repository.getPosts() [cite: 153]
-            } catch (e: Exception) { [cite: 154]
-                println("Error al obtener datos: ${e.localizedMessage}") [cite: 155]
+        viewModelScope.launch {
+            try {
+                _postList.value = repository.getPosts()
+            } catch (e: Exception) {
+                println("Error: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    // 👇 NUEVA FUNCIÓN para llamar desde la UI
+    fun crearNuevoPost(titulo: String, contenido: String) {
+        viewModelScope.launch {
+            try {
+                // Creamos el objeto Post (el ID 0 suele indicar "nuevo" en muchas APIs)
+                val nuevoPost = Post(userId = 1, id = 0, title = titulo, body = contenido)
+
+                // Llamamos al repositorio
+                val respuesta = repository.createPost(nuevoPost)
+
+                println("Post creado con éxito: ${respuesta.title}")
+
+                // Opcional: Podrías volver a llamar a fetchPosts() aquí para actualizar la lista
+            } catch (e: Exception) {
+                println("Error al crear post: ${e.localizedMessage}")
             }
         }
     }
