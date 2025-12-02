@@ -33,8 +33,10 @@ fun LevelUpApp(postViewModelFactory: PostViewModelFactory) {
         // 3. LLAMAMOS A TU BOTTOMNAVIGATION: Esta función sí existe.
         bottomBar = {
             BottomNavigationBar(
-                navController = navController,
-                currentRoute = currentRoute
+                currentRoute = currentRoute,
+                onNavigate = { route ->
+                    navController.navigate(route)
+                }
             )
         }
     ) { innerPadding ->

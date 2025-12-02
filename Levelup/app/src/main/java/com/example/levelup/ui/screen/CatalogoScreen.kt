@@ -8,10 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.levelup.data.AppDatabase
 import com.example.levelup.data.ProductosRepository
 import com.example.levelup.ui.components.ProductoCard
 import com.example.levelup.viewmodel.CatalogoViewModel
@@ -20,14 +23,20 @@ import com.example.levelup.viewmodel.CatalogoViewModel
 @Composable
 fun CatalogoScreen(
     onNavigateToPerfil: () -> Unit = {},
-    viewModel: CatalogoViewModel = viewModel(
-        factory = CatalogoViewModelFactory(
-            ProductosRepository()
-        )
+) { // <-- 1. HEMOS QUITADO EL VIEWMODEL DE AQUÍ
+
+    // --- 2. CONSTRUIMOS LAS DEPENDENCIAS AQUÍ DENTRO ---
+    val context = LocalContext.current
+    val database = remember { AppDatabase.getDatabase(context) }
+    val repository = remember { ProductosRepository(database.productDao()) }
+    val viewModel: CatalogoViewModel = viewModel(
+        factory = CatalogoViewModelFactory(repository)
     )
-) {
+
+    // --- 3. AHORA EL RESTO DEL CÓDIGO FUNCIONA IGUAL ---
     val uiState by viewModel.uiState.collectAsState()
-    val categorias = remember { viewModel.obtenerCategorias() }
+    // Corregimos la obtención de categorías para que sea reactiva
+    val categorias by viewModel.categorias.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -147,7 +156,7 @@ fun CatalogoScreen(
 
 class CatalogoViewModelFactory(
     private val repository: ProductosRepository
-) : androidx.lifecycle.ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CatalogoViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

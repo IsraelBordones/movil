@@ -26,8 +26,8 @@ class PerfilViewModel(private val preferencesManager: PreferencesManager) : View
                 val datos = preferencesManager.getUserData()
                 if (datos["id"]?.isNotBlank() == true) {
                     val usuario = Usuario(
-                        id = datos["id"] ?: "",
-                        nombre = datos["nombre"] ?: "",
+                        id = datos["id"]?.toIntOrNull() ?: 0,
+                        nombreUsuario = datos["nombre"] ?: "",
                         apellido = datos["apellido"] ?: "",
                         email = datos["email"] ?: "",
                         telefono = datos["telefono"] ?: "",
@@ -74,4 +74,3 @@ class PerfilViewModel(private val preferencesManager: PreferencesManager) : View
         _uiState.update { it.copy(mostrarDialogoEditar = !it.mostrarDialogoEditar) }
     }
 }
-

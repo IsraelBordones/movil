@@ -14,8 +14,26 @@ class CatalogoViewModel(private val repository: ProductosRepository) : ViewModel
     private val _uiState = MutableStateFlow(CatalogoUiState())
     val uiState: StateFlow<CatalogoUiState> = _uiState.asStateFlow()
 
+    // 1. AÑADIMOS EL STATEFLOW PARA LAS CATEGORÍAS
+    private val _categorias = MutableStateFlow<List<String>>(emptyList())
+    val categorias: StateFlow<List<String>> = _categorias.asStateFlow()
+
     init {
         cargarProductos()
+        // 2. LLAMAMOS A LA FUNCIÓN PARA CARGAR LAS CATEGORÍAS
+        cargarCategorias()
+    }
+
+    // 3. CREAMOS LA FUNCIÓN QUE CARGA LAS CATEGORÍAS DESDE EL REPOSITORIO
+    private fun cargarCategorias() {
+        viewModelScope.launch {
+            try {
+                _categorias.value = repository.obtenerCategorias()
+            } catch (e: Exception) {
+                // En caso de error, la lista de categorías estará vacía
+                _categorias.value = emptyList()
+            }
+        }
     }
 
     fun cargarProductos() {
@@ -97,8 +115,6 @@ class CatalogoViewModel(private val repository: ProductosRepository) : ViewModel
         }
     }
 
-    fun obtenerCategorias(): List<String> {
-        return repository.obtenerCategorias()
-    }
+    // 4. ELIMINAMOS LA FUNCIÓN ANTIGUA, YA NO SE NECESITA
+    // fun obtenerCategorias(): List<String> { ... }
 }
-

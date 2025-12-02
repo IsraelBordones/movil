@@ -5,17 +5,23 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.LocationCity
+import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.levelup.data.PreferencesManager
+import com.example.levelup.model.Usuario
 import com.example.levelup.viewmodel.PerfilViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,8 +29,13 @@ import com.example.levelup.viewmodel.PerfilViewModel
 fun PerfilScreen(
     onLogout: () -> Unit,
     onNavigateToCatalogo: () -> Unit = {},
-    viewModel: PerfilViewModel = viewModel()
-) {
+) { 
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+    val viewModel: PerfilViewModel = viewModel(
+        factory = PerfilViewModelFactory(preferencesManager)
+    )
+
     val uiState by viewModel.uiState.collectAsState()
     var mostrarDialogoCerrarSesion by remember { mutableStateOf(false) }
 
@@ -102,7 +113,7 @@ fun PerfilScreen(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Text(
-                                    text = "${usuario.nombre.firstOrNull()?.uppercaseChar() ?: 'U'}${usuario.apellido.firstOrNull()?.uppercaseChar() ?: 'U'}",
+                                    text = "${usuario.nombreUsuario.firstOrNull()?.uppercaseChar() ?: 'U'}",
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimary
@@ -112,7 +123,7 @@ fun PerfilScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = "${usuario.nombre} ${usuario.apellido}",
+                                text = usuario.nombreUsuario,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -125,7 +136,6 @@ fun PerfilScreen(
                         }
                     }
                 }
-
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -171,7 +181,7 @@ fun PerfilScreen(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ExitToApp,
+                        imageVector = Icons.Outlined.ExitToApp, 
                         contentDescription = "Cerrar sesión",
                         modifier = Modifier.size(20.dp)
                     )
@@ -185,7 +195,6 @@ fun PerfilScreen(
             }
         }
     }
-
 
     if (mostrarDialogoCerrarSesion) {
         AlertDialog(
@@ -244,3 +253,12 @@ fun InfoRow(
     }
 }
 
+class PerfilViewModelFactory(private val preferencesManager: PreferencesManager) : ViewModelProvider.Factory {
+    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return PerfilViewModel(preferencesManager) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
