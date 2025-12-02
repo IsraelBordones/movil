@@ -2,49 +2,36 @@ package com.example.levelup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelup.data.model.Post
-import com.example.levelup.Repository.PostRepository
+// 1. IMPORTAMOS LAS CLASES CORRECTAS
+import com.example.levelup.data.ProductosRepository // <-- Tu repositorio de productos
+import com.example.levelup.model.Producto             // <-- Tu modelo de producto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class PostViewModel : ViewModel() {
+// 2. CAMBIO CLAVE: El ViewModel ahora pide ProductosRepository en su constructor.
+//    Esto es la "inyección de dependencias".
+class PostViewModel(private val repository: ProductosRepository) : ViewModel() {
 
-    private val repository = PostRepository()
+    // 3. CAMBIAMOS EL ESTADO: Ahora guardará una lista de 'Producto', no de 'Post'.
+    private val _productos = MutableStateFlow<List<Producto>>(emptyList())
+    val productos: StateFlow<List<Producto>> = _productos.asStateFlow()
 
-    private val _postList = MutableStateFlow<List<Post>>(emptyList())
-    val postList: StateFlow<List<Post>> = _postList
-
+    // El bloque 'init' se ejecuta una sola vez cuando el ViewModel se crea.
     init {
-        fetchPosts()
-    }
-
-    private fun fetchPosts() {
+        // 4. CARGAMOS LOS PRODUCTOS: Iniciamos una corutina para obtener los productos.
         viewModelScope.launch {
-            try {
-                _postList.value = repository.getPosts()
-            } catch (e: Exception) {
-                println("Error: ${e.localizedMessage}")
+            // 'repository.todosLosProductos' es el Flow que viene directamente de la base de datos.
+            // '.collect' se quedará "escuchando" para siempre. Si un producto se añade,
+            // elimina o actualiza en la base de datos, este código se ejecutará de nuevo
+            // y la UI se actualizará automáticamente.
+            repository.todosLosProductos.collect { listaDeProductosDeLaBD ->
+                _productos.value = listaDeProductosDeLaBD
             }
         }
     }
 
-    // 👇 NUEVA FUNCIÓN para llamar desde la UI
-    fun crearNuevoPost(titulo: String, contenido: String) {
-        viewModelScope.launch {
-            try {
-                // Creamos el objeto Post (el ID 0 suele indicar "nuevo" en muchas APIs)
-                val nuevoPost = Post(userId = 1, id = 0, title = titulo, body = contenido)
-
-                // Llamamos al repositorio
-                val respuesta = repository.createPost(nuevoPost)
-
-                println("Post creado con éxito: ${respuesta.title}")
-
-                // Opcional: Podrías volver a llamar a fetchPosts() aquí para actualizar la lista
-            } catch (e: Exception) {
-                println("Error al crear post: ${e.localizedMessage}")
-            }
-        }
-    }
+    // Por ahora, dejamos las funciones de crear post fuera.
+    // Más adelante, podríamos añadir funciones para "añadir al carrito", etc.
 }
