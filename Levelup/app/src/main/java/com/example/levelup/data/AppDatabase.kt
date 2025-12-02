@@ -5,10 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.levelup.data.dao.ProductDao  // <-- Importa desde el nuevo paquete 'dao'
-import com.example.levelup.data.dao.UserDao       // <-- Importa desde el nuevo paquete 'dao'
-import com.example.levelup.model.Producto   // <-- Importa desde el paquete 'model'
-import com.example.levelup.model.Usuario      // <-- Importa desde el paquete 'model'
+import com.example.levelup.data.dao.ProductDao
+import com.example.levelup.data.dao.UserDao
+import com.example.levelup.data.model.Producto // <-- CORREGIDO
+import com.example.levelup.data.model.Usuario    // <-- CORREGIDO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,7 +49,6 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(productDao: ProductDao, userDao: UserDao) {
-            // Inserta usuarios y productos de ejemplo (el código es el mismo de antes)
             val initialUsers = listOf(
                 Usuario(nombreUsuario = "israel_dev", email = "israel@example.com")
             )

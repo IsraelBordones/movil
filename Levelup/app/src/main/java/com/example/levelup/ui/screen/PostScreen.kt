@@ -11,12 +11,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.levelup.model.Producto // ¡Importamos el modelo Producto!
+import com.example.levelup.data.model.Producto // <-- ¡LA CORRECCIÓN FINAL Y DEFINITIVA!
 
 @Composable
-// 1. CAMBIO CLAVE: Renombramos la función y cambiamos los parámetros.
-//    Ahora acepta un 'Producto' en lugar de parámetros sueltos.
-fun PostScreen(producto: Producto) { // Le quitamos el NavController por ahora para simplificar
+fun PostScreen(producto: Producto) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -26,7 +24,6 @@ fun PostScreen(producto: Producto) { // Le quitamos el NavController por ahora p
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column {
-            // 2. Usamos los datos del 'producto' para mostrar la información.
             AsyncImage(
                 model = producto.imagen, // Usa la URL de la imagen del producto
                 contentDescription = "Imagen de ${producto.nombre}",
@@ -47,7 +44,7 @@ fun PostScreen(producto: Producto) { // Le quitamos el NavController por ahora p
                     text = producto.descripcion, // Muestra la descripción
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 3,
-                    overflow = TextOverflow.Ellipsis // Pone "..." si el texto es muy largo
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -60,4 +57,3 @@ fun PostScreen(producto: Producto) { // Le quitamos el NavController por ahora p
         }
     }
 }
-    

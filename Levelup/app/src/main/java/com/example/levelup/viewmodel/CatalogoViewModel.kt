@@ -3,7 +3,7 @@ package com.example.levelup.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.data.ProductosRepository
-import com.example.levelup.model.CatalogoUiState
+import com.example.levelup.data.model.CatalogoUiState // <-- ¡CORREGIDO!
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

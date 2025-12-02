@@ -13,9 +13,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.levelup.navigation.Destinations
-// 1. IMPORTAMOS ÚNICAMENTE LOS COMPONENTES QUE EXISTEN
-import com.example.levelup.ui.components.BottomNavigationBar // Tu barra inferior
+import com.example.levelup.ui.components.BottomNavigationBar
+import com.example.levelup.ui.screen.CatalogoScreen
+import com.example.levelup.ui.screen.FavsScreen
 import com.example.levelup.ui.screen.InicioScreen
+import com.example.levelup.ui.screen.PerfilScreen
+import com.example.levelup.ui.screen.SearchScreen
 import com.example.levelup.viewmodel.PostViewModel
 import com.example.levelup.viewmodel.PostViewModelFactory
 
@@ -27,15 +30,16 @@ fun LevelUpApp(postViewModelFactory: PostViewModelFactory) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
-        // 2. HEMOS ELIMINADO POR COMPLETO LA SECCIÓN 'topBar'.
-        //    Si tu app no tiene una barra superior aquí, no la necesitamos.
-
-        // 3. LLAMAMOS A TU BOTTOMNAVIGATION: Esta función sí existe.
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = currentRoute,
                 onNavigate = { route ->
-                    navController.navigate(route)
+                    navController.navigate(route) {
+                        // Evita que se acumulen múltiples copias de la misma pantalla
+                        launchSingleTop = true
+                        // Restaura el estado al volver a una pantalla
+                        restoreState = true
+                    }
                 }
             )
         }
@@ -49,9 +53,10 @@ fun LevelUpApp(postViewModelFactory: PostViewModelFactory) {
                     val postViewModel: PostViewModel = viewModel(factory = postViewModelFactory)
                     InicioScreen(viewModel = postViewModel, navController = navController)
                 }
-
-                // Aquí defines el resto de tus pantallas...
-                // composable(Destinations.FavsScreen.route) { FavsScreen(...) }
+                composable(Destinations.FavsScreen.route) { FavsScreen() }
+                composable(Destinations.SearchScreen.route) { SearchScreen() }
+                composable(Destinations.PerfilScreen.route) { PerfilScreen() }
+                composable(Destinations.CatalogoScreen.route) { CatalogoScreen() }
             }
         }
     }

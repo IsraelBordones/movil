@@ -3,8 +3,8 @@ package com.example.levelup.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.data.PreferencesManager
-import com.example.levelup.model.PerfilUiState
-import com.example.levelup.model.Usuario
+import com.example.levelup.data.model.PerfilUiState // <-- CORREGIDO
+import com.example.levelup.data.model.Usuario    // <-- CORREGIDO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,4 +1,4 @@
-package com.example.levelup.model // <-- Asegúrate de que esta línea sea la correcta
+package com.example.levelup.data.model // <-- ¡CORRECCIÓN CRÍTICA!
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,4 +1,6 @@
-package com.example.levelup.model
+package com.example.levelup.data.model // <-- CORREGIDO
+
+// No se necesita importar Producto si está en el mismo paquete
 
 data class CatalogoUiState(
     val productos: List<Producto> = emptyList(),
@@ -7,4 +9,3 @@ data class CatalogoUiState(
     val categoriaSeleccionada: String? = null,
     val busqueda: String = ""
 )
-

@@ -9,7 +9,7 @@ import com.example.levelup.data.AppDatabase
 import com.example.levelup.data.ProductosRepository
 import com.example.levelup.ui.theme.LevelUpTheme
 import com.example.levelup.viewmodel.PostViewModelFactory
-import com.example.levelup.navigation.LevelUpApp // <-- ¡AÑADE ESTA LÍNEA!
+import com.example.levelup.ui.LevelUpApp // <-- ¡ESTA ES LA CORRECCIÓN!
 
 
 // 1. La clase empieza aquí
