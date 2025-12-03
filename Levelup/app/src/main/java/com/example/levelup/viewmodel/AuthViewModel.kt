@@ -75,7 +75,39 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun validarFormulario() {
-        // ... (la lógica de validación no cambia)
+        val currentState = _uiState.value
+        var errores = FormularioError()
+
+        // Validaciones para el formulario de registro
+        if (!currentState.esLogin) {
+            if (currentState.nombre.isBlank()) errores.nombre = "El nombre no puede estar vacío"
+            if (currentState.apellido.isBlank()) errores.apellido = "El apellido no puede estar vacío"
+            if (currentState.password != currentState.confirmarPassword) errores.confirmarPassword = "Las contraseñas no coinciden"
+            if (currentState.telefono.isBlank()) errores.telefono = "El teléfono no puede estar vacío"
+            if (currentState.direccion.isBlank()) errores.direccion = "La dirección no puede estar vacía"
+            if (currentState.ciudad.isBlank()) errores.ciudad = "La ciudad no puede estar vacía"
+        }
+
+        // Validaciones comunes para login y registro
+        if (currentState.email.isBlank()) {
+            errores.email = "El email no puede estar vacío"
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(currentState.email).matches()) {
+            errores.email = "El formato del email no es válido"
+        }
+
+        if (currentState.password.isBlank()) {
+            errores.password = "La contraseña no puede estar vacía"
+        } else if (currentState.password.length < 6) {
+            errores.password = "La contraseña debe tener al menos 6 caracteres"
+        }
+
+        val esValido = if (currentState.esLogin) {
+            errores.email == null && errores.password == null
+        } else {
+            errores.nombre == null && errores.apellido == null && errores.email == null && errores.password == null && errores.confirmarPassword == null && errores.telefono == null && errores.direccion == null && errores.ciudad == null
+        }
+
+        _uiState.update { it.copy(errores = errores, esFormularioValido = esValido) }
     }
 
     fun iniciarSesion(onSuccess: () -> Unit) {

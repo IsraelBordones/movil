@@ -1,15 +1,15 @@
-package com.example.levelup.data.model // <-- PAQUETE CORREGIDO
+package com.example.levelup.data.model
 
 data class FormularioError(
-    val nombre: String? = null,
-    val apellido: String? = null,
-    val email: String? = null,
-    val password: String? = null,
-    val confirmarPassword: String? = null,
-    val telefono: String? = null,
-    val direccion: String? = null,
-    val ciudad: String? = null,
-    val errorGeneral: String? = null // <-- CAMPO AÑADIDO
+    var nombre: String? = null,
+    var apellido: String? = null,
+    var email: String? = null,
+    var password: String? = null,
+    var confirmarPassword: String? = null,
+    var telefono: String? = null,
+    var direccion: String? = null,
+    var ciudad: String? = null,
+    var errorGeneral: String? = null
 ) {
     val tieneErrores: Boolean
         get() = nombre != null || apellido != null || email != null ||
