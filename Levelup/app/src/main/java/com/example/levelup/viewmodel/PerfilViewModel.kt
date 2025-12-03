@@ -2,75 +2,63 @@ package com.example.levelup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.levelup.data.dao.UserDao
 import com.example.levelup.data.PreferencesManager
-import com.example.levelup.data.model.PerfilUiState // <-- CORREGIDO
-import com.example.levelup.data.model.Usuario    // <-- CORREGIDO
+import com.example.levelup.data.model.PerfilUiState
+import com.example.levelup.data.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PerfilViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
+class PerfilViewModel(
+    private val userDao: UserDao,
+    private val preferencesManager: PreferencesManager
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(PerfilUiState())
     val uiState: StateFlow<PerfilUiState> = _uiState.asStateFlow()
 
     init {
-        cargarUsuario()
-    }
-
-    fun cargarUsuario() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            try {
-                val datos = preferencesManager.getUserData()
-                if (datos["id"]?.isNotBlank() == true) {
-                    val usuario = Usuario(
-                        id = datos["id"]?.toIntOrNull() ?: 0,
-                        nombreUsuario = datos["nombre"] ?: "",
-                        apellido = datos["apellido"] ?: "",
-                        email = datos["email"] ?: "",
-                        telefono = datos["telefono"] ?: "",
-                        direccion = datos["direccion"] ?: "",
-                        ciudad = datos["ciudad"] ?: ""
-                    )
-                    _uiState.update {
-                        it.copy(
-                            usuario = usuario,
-                            isLoading = false
-                        )
+            preferencesManager.userId.collectLatest { userId ->
+                if (userId != null && userId.isNotEmpty()) {
+                    userDao.getUserById(userId.toInt()).collectLatest { usuarioDb ->
+                        _uiState.update { it.copy(usuario = usuarioDb, isLoading = false) }
                     }
                 } else {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = "No hay sesión activa"
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = "Error al cargar perfil: ${e.message}"
-                    )
+                    _uiState.update { it.copy(isLoading = false, error = "No se encontró el ID del usuario") }
                 }
             }
         }
     }
 
-    fun cerrarSesion(onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            try {
-                preferencesManager.saveLoginState(isLoggedIn = false)
-                onSuccess()
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Error al cerrar sesión: ${e.message}") }
-            }
+    fun toggleModoEdicion() {
+        _uiState.update { it.copy(enModoEdicion = !it.enModoEdicion) }
+    }
+
+    // MODIFICADO: Ahora acepta todos los campos editables
+    fun onDataChange(nombre: String, email: String, telefono: String, direccion: String, ciudad: String) {
+        _uiState.value.usuario?.let {
+            val usuarioActualizado = it.copy(
+                nombreUsuario = nombre,
+                email = email,
+                telefono = telefono,
+                direccion = direccion,
+                ciudad = ciudad
+            )
+            _uiState.update { state -> state.copy(usuario = usuarioActualizado) }
         }
     }
 
-    fun toggleDialogoEditar() {
-        _uiState.update { it.copy(mostrarDialogoEditar = !it.mostrarDialogoEditar) }
+    fun guardarCambios() {
+        _uiState.value.usuario?.let {
+            viewModelScope.launch {
+                userDao.updateUser(it)
+                toggleModoEdicion()
+            }
+        }
     }
 }

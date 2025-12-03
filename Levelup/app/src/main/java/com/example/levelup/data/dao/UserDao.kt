@@ -4,25 +4,31 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.levelup.data.model.Usuario
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
 
-    // 1. Para el Registro: Inserta un solo usuario
-    // Si el usuario ya existe (por ID), lo reemplaza
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUsuario(usuario: Usuario)
 
-    // 2. Para el Login: Busca un usuario que tenga ESE email y ESA contraseña
     @Query("SELECT * FROM usuarios WHERE email = :email AND password = :pass LIMIT 1")
     suspend fun login(email: String, pass: String): Usuario?
 
-    // 3. Validación: Revisa si el correo ya existe antes de dejarlo registrarse
     @Query("SELECT * FROM usuarios WHERE email = :email LIMIT 1")
     suspend fun getUsuarioByEmail(email: String): Usuario?
 
-    // (Opcional) Dejamos tu función original por si acaso la usan en otro lado
+    // AÑADIDO: Obtiene un usuario por su ID y lo emite como un Flow
+    @Query("SELECT * FROM usuarios WHERE id = :userId")
+    fun getUserById(userId: Int): Flow<Usuario?>
+
+    // AÑADIDO: Actualiza un usuario existente
+    @Update
+    suspend fun updateUser(usuario: Usuario)
+
+    // Función original, la mantenemos por si se usa en otro lugar
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(usuarios: List<Usuario>)
 }
