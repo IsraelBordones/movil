@@ -2,18 +2,20 @@ package com.example.levelup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelup.data.dao.UserDao
 import com.example.levelup.data.PreferencesManager
+import com.example.levelup.data.dao.UserDao
 import com.example.levelup.data.model.PerfilUiState
-import com.example.levelup.data.model.Usuario
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PerfilViewModel(
+@HiltViewModel
+class PerfilViewModel @Inject constructor(
     private val userDao: UserDao,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
@@ -39,7 +41,6 @@ class PerfilViewModel(
         _uiState.update { it.copy(enModoEdicion = !it.enModoEdicion) }
     }
 
-    // MODIFICADO: Ahora acepta todos los campos editables
     fun onDataChange(nombre: String, email: String, telefono: String, direccion: String, ciudad: String) {
         _uiState.value.usuario?.let {
             val usuarioActualizado = it.copy(

@@ -4,14 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.data.PreferencesManager
 import com.example.levelup.data.model.MainUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class MainViewModel(preferencesManager: PreferencesManager) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    preferencesManager: PreferencesManager
+) : ViewModel() {
 
-    // MODIFICADO: Expone el estado de la UI principal (Loading, LoggedIn, LoggedOut)
     val uiState: StateFlow<MainUiState> = preferencesManager.isLoggedIn
         .map { isLoggedIn ->
             if (isLoggedIn) {
@@ -23,7 +27,6 @@ class MainViewModel(preferencesManager: PreferencesManager) : ViewModel() {
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            // El estado inicial ahora es `Loading`
             initialValue = MainUiState.Loading
         )
 }

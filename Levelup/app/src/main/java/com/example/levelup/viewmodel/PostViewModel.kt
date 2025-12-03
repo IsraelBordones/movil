@@ -4,20 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.data.ProductosRepository
 import com.example.levelup.data.model.Producto
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class PostViewModel(repository: ProductosRepository) : ViewModel() {
+@HiltViewModel
+class PostViewModel @Inject constructor(
+    repository: ProductosRepository
+) : ViewModel() {
 
-    // Expone el flujo de productos directamente desde el repositorio.
-    // El `stateIn` lo convierte en un StateFlow que se puede observar en la UI.
     val productos: StateFlow<List<Producto>> = repository.getAllProducts()
         .stateIn(
             scope = viewModelScope,
-            // `WhileSubscribed` hace que el flujo esté activo solo cuando hay observadores.
             started = SharingStarted.WhileSubscribed(5000L),
-            // El valor inicial es una lista vacía hasta que la base de datos emita el primer valor.
             initialValue = emptyList()
         )
 }

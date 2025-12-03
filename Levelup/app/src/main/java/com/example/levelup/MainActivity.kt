@@ -8,21 +8,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.example.levelup.data.AppDatabase
-import com.example.levelup.data.ProductosRepository
-import com.example.levelup.ui.navigation.AppNavigation
+import com.example.levelup.navigation.AppNavigation // <-- RUTA CORREGIDA
 import com.example.levelup.ui.theme.LevelUpTheme
-import com.example.levelup.viewmodel.PostViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // --- Construcción de Dependencias ---
-        val database = AppDatabase.getDatabase(applicationContext)
-        val productDao = database.productDao()
-        val productosRepository = ProductosRepository(productDao)
-        val postViewModelFactory = PostViewModelFactory(productosRepository)
 
         setContent {
             LevelUpTheme {
@@ -31,10 +24,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    AppNavigation(
-                        navController = navController,
-                        postViewModelFactory = postViewModelFactory
-                    )
+                    AppNavigation(navController = navController) // <-- RUTA CORREGIDA
                 }
             }
         }

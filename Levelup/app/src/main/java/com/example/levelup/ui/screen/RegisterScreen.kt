@@ -11,14 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.levelup.viewmodel.AuthViewModel
-import com.example.levelup.viewmodel.AuthViewModelFactory
 
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
-    authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current))
+    authViewModel: AuthViewModel = hiltViewModel() // Inyectado con Hilt
 ) {
 
     val uiState by authViewModel.uiState.collectAsState()

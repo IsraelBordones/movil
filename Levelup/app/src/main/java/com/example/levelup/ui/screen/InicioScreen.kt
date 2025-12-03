@@ -7,18 +7,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.levelup.viewmodel.CarritoViewModel
-import com.example.levelup.viewmodel.CarritoViewModelFactory
 import com.example.levelup.viewmodel.PostViewModel
 
 @Composable
 fun InicioScreen(
-    viewModel: PostViewModel,
+    // MODIFICADO: El viewModel ahora se inyecta con Hilt
     navController: NavHostController,
-    // AÑADIDO: Obtenemos el ViewModel del carrito
-    carritoViewModel: CarritoViewModel = viewModel(factory = CarritoViewModelFactory(LocalContext.current))
+    viewModel: PostViewModel = hiltViewModel(),
+    carritoViewModel: CarritoViewModel = hiltViewModel()
 ) {
     val listaDeProductos by viewModel.productos.collectAsState()
     val context = LocalContext.current

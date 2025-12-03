@@ -4,17 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.data.PreferencesManager
 import com.example.levelup.data.dao.UserDao
+import com.example.levelup.data.model.FormularioError
+import com.example.levelup.data.model.FormularioUiState
 import com.example.levelup.data.model.Usuario
-import com.example.levelup.data.model.FormularioError // <-- PAQUETE CORREGIDO
-import com.example.levelup.data.model.FormularioUiState // <-- PAQUETE CORREGIDO
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AuthViewModel(
-    private val userDao: UserDao, 
+@HiltViewModel // 1. Anotado para Hilt
+class AuthViewModel @Inject constructor( // 2. Constructor inyectado
+    private val userDao: UserDao,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
@@ -190,7 +193,7 @@ class AuthViewModel(
                     nombreUsuario = estado.nombre,
                     apellido = estado.apellido,
                     email = estado.email,
-                    password = estado.password, // En un proyecto real, ¡esto debería estar encriptado!
+                    password = estado.password,
                     telefono = estado.telefono,
                     direccion = estado.direccion,
                     ciudad = estado.ciudad

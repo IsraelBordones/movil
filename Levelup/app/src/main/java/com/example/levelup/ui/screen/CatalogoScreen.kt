@@ -16,18 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.levelup.viewmodel.CarritoViewModel
-import com.example.levelup.viewmodel.CarritoViewModelFactory
 import com.example.levelup.viewmodel.CatalogoViewModel
-import com.example.levelup.viewmodel.CatalogoViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogoScreen(
     onLogout: () -> Unit,
-    catalogoViewModel: CatalogoViewModel = viewModel(factory = CatalogoViewModelFactory(LocalContext.current)),
-    carritoViewModel: CarritoViewModel = viewModel(factory = CarritoViewModelFactory(LocalContext.current)) // <-- AÑADIDO
+    catalogoViewModel: CatalogoViewModel = hiltViewModel(), // Inyectado con Hilt
+    carritoViewModel: CarritoViewModel = hiltViewModel() // Inyectado con Hilt
 ) {
     val uiState by catalogoViewModel.uiState.collectAsState()
     val context = LocalContext.current

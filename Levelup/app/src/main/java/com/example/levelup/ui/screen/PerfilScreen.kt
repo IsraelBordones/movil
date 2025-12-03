@@ -20,14 +20,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.levelup.viewmodel.PerfilViewModel
-import com.example.levelup.viewmodel.PerfilViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(
-    perfilViewModel: PerfilViewModel = viewModel(factory = PerfilViewModelFactory(LocalContext.current))
+    perfilViewModel: PerfilViewModel = hiltViewModel() // Inyectado con Hilt
 ) {
     val uiState by perfilViewModel.uiState.collectAsState()
     val context = LocalContext.current

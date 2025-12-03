@@ -1,80 +1,81 @@
 package com.example.levelup.navigation
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.example.levelup.ui.components.BottomNavigationBar
-import com.example.levelup.ui.screen.InicioScreen
-import com.example.levelup.viewmodel.PostViewModel
-import com.example.levelup.viewmodel.PostViewModelFactory
+import androidx.navigation.navigation
+import com.example.levelup.data.model.MainUiState
+import com.example.levelup.ui.LevelUpApp
+import com.example.levelup.ui.screen.LoginScreen
+import com.example.levelup.ui.screen.RegisterScreen
+import com.example.levelup.viewmodel.MainViewModel
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LevelUpApp(postViewModelFactory: PostViewModelFactory) {
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(currentRoute ?: "") }
-            )
-        },
-        bottomBar = {
-            BottomNavigationBar(
-                currentRoute = currentRoute,
-                onNavigate = { route ->
-                    navController.navigate(route)
-                }
-            )
-        }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            NavigationHost(
-                navController = navController,
-                postViewModelFactory = postViewModelFactory
-            )
-        }
-    }
+// Definición de las rutas principales
+object Routes {
+    const val AUTH_GRAPH = "auth_graph"
+    const val LOGIN = "login"
+    const val REGISTER = "register"
+    const val MAIN_GRAPH = "main_graph"
 }
 
 @Composable
-fun NavigationHost(
+fun AppNavigation(
     navController: NavHostController,
-    postViewModelFactory: PostViewModelFactory
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Catalogo.route // Assuming Catalogo is the starting screen
-    ) {
-        composable(Screen.Catalogo.route) {
-            val postViewModel: PostViewModel = viewModel(factory = postViewModelFactory)
-            InicioScreen(viewModel = postViewModel, navController = navController)
-        }
+    val uiState by mainViewModel.uiState.collectAsState()
 
-        composable(Screen.Perfil.route) {
-            // Placeholder for PerfilScreen
-            // PerfilScreen()
+    when (uiState) {
+        is MainUiState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        else -> {
+            val startDestination = if (uiState is MainUiState.LoggedIn) Routes.MAIN_GRAPH else Routes.AUTH_GRAPH
+
+            NavHost(navController = navController, startDestination = startDestination) {
+
+                navigation(startDestination = Routes.LOGIN, route = Routes.AUTH_GRAPH) {
+                    composable(Routes.LOGIN) {
+                        LoginScreen(
+                            onLoginSuccess = {
+                                navController.navigate(Routes.MAIN_GRAPH) {
+                                    popUpTo(Routes.AUTH_GRAPH) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+                    composable(Routes.REGISTER) {
+                        RegisterScreen(
+                            onRegisterSuccess = {
+                                navController.navigate(Routes.MAIN_GRAPH) {
+                                    popUpTo(Routes.AUTH_GRAPH) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+                }
+
+                composable(Routes.MAIN_GRAPH) {
+                    LevelUpApp(
+                        onLogout = {
+                            navController.navigate(Routes.AUTH_GRAPH) {
+                                popUpTo(Routes.MAIN_GRAPH) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+            }
         }
     }
-}
-
-// Define your screen routes here
-sealed class Screen(val route: String) {
-    object Catalogo : Screen("catalogo")
-    object Perfil : Screen("perfil")
 }

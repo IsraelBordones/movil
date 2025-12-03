@@ -16,14 +16,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.levelup.viewmodel.CarritoViewModel
-import com.example.levelup.viewmodel.CarritoViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarritoScreen(
-    carritoViewModel: CarritoViewModel = viewModel(factory = CarritoViewModelFactory(LocalContext.current))
+    carritoViewModel: CarritoViewModel = hiltViewModel() // Inyectado con Hilt
 ) {
     val carritoItems by carritoViewModel.carritoItems.collectAsState()
     val context = LocalContext.current
