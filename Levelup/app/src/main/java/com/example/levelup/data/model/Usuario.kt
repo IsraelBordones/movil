@@ -1,11 +1,11 @@
-package com.example.levelup.data.model // <-- ¡CORRECCIÓN CRÍTICA!
+package com.example.levelup.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "usuarios")
 data class Usuario(
-    @PrimaryKey(autoGenerate = true)
+    @field:PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val nombreUsuario: String = "",
     val password: String = "",

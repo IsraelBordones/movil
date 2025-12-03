@@ -3,16 +3,21 @@ package com.example.levelup.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.data.PreferencesManager
-import com.example.levelup.model.FormularioError
-import com.example.levelup.model.FormularioUiState
+import com.example.levelup.data.dao.UserDao
+import com.example.levelup.data.model.Usuario
+import com.example.levelup.data.model.FormularioError // <-- PAQUETE CORREGIDO
+import com.example.levelup.data.model.FormularioUiState // <-- PAQUETE CORREGIDO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 
-class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
+class AuthViewModel(
+    private val userDao: UserDao, 
+    private val preferencesManager: PreferencesManager
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(FormularioUiState())
     val uiState: StateFlow<FormularioUiState> = _uiState.asStateFlow()
 
@@ -74,7 +79,7 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
             if (estado.nombre.isBlank()) {
                 errores["nombre"] = "El nombre es requerido"
             } else if (estado.nombre.length < 2) {
-                errores["nombre"] = "El nombre debe tener al menos 2 caracteres"
+                errores["nombre"] = "Mínimo 2 caracteres"
             }
 
             if (estado.apellido.isBlank()) {
@@ -105,7 +110,7 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
         if (estado.password.isBlank()) {
             errores["password"] = "La contraseña es requerida"
         } else if (estado.password.length < 6) {
-            errores["password"] = "La contraseña debe tener al menos 6 caracteres"
+            errores["password"] = "Mínimo 6 caracteres"
         }
 
         if (!estado.esLogin) {
@@ -127,7 +132,8 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
                     confirmarPassword = errores["confirmarPassword"],
                     telefono = errores["telefono"],
                     direccion = errores["direccion"],
-                    ciudad = errores["ciudad"]
+                    ciudad = errores["ciudad"],
+                    errorGeneral = errores["general"]
                 ),
                 esFormularioValido = esValido
             )
@@ -135,69 +141,67 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
     }
 
     fun iniciarSesion(onSuccess: () -> Unit) {
+        validarFormulario()
         val estado = _uiState.value
-        if (!estado.esFormularioValido || !estado.esLogin) {
-            validarFormulario()
-            return
-        }
+        if (!estado.esFormularioValido || !estado.esLogin) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, errores = FormularioError()) }
             try {
+                val usuario = userDao.login(estado.email, estado.password)
 
-                kotlinx.coroutines.delay(900)
-
-                val userId = UUID.randomUUID().toString()
-                preferencesManager.saveLoginState(
-                    isLoggedIn = true,
-                    userId = userId,
-                    email = estado.email,
-                    nombre = estado.nombre.ifEmpty { "Usuario" },
-                    apellido = estado.apellido.ifEmpty { "" },
-                    telefono = estado.telefono.ifEmpty { "" },
-                    direccion = estado.direccion.ifEmpty { "" },
-                    ciudad = estado.ciudad.ifEmpty { "" }
-                )
-
-                _uiState.update { it.copy(isLoading = false) }
-                onSuccess()
+                if (usuario != null) {
+                    preferencesManager.saveLoginState(
+                        isLoggedIn = true,
+                        userId = usuario.id.toString(),
+                        email = usuario.email,
+                        nombre = usuario.nombreUsuario,
+                        apellido = usuario.apellido,
+                        telefono = usuario.telefono,
+                        direccion = usuario.direccion,
+                        ciudad = usuario.ciudad
+                    )
+                    _uiState.update { it.copy(isLoading = false) }
+                    onSuccess()
+                } else {
+                    _uiState.update { it.copy(isLoading = false, errores = FormularioError(errorGeneral = "Email o contraseña incorrectos")) }
+                }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false) }
+                _uiState.update { it.copy(isLoading = false, errores = FormularioError(errorGeneral = "Error: ${e.message}")) }
             }
         }
     }
 
     fun registrar(onSuccess: () -> Unit) {
+        validarFormulario()
         val estado = _uiState.value
-        if (!estado.esFormularioValido || estado.esLogin) {
-            validarFormulario()
-            return
-        }
+        if (!estado.esFormularioValido || estado.esLogin) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, errores = FormularioError()) }
             try {
+                val existingUser = userDao.getUsuarioByEmail(estado.email)
+                if (existingUser != null) {
+                    _uiState.update { it.copy(isLoading = false, errores = FormularioError(email = "Este email ya está registrado")) }
+                    return@launch
+                }
 
-                kotlinx.coroutines.delay(1000)
-
-                val userId = UUID.randomUUID().toString()
-                preferencesManager.saveLoginState(
-                    isLoggedIn = true,
-                    userId = userId,
-                    email = estado.email,
-                    nombre = estado.nombre,
+                val nuevoUsuario = Usuario(
+                    nombreUsuario = estado.nombre,
                     apellido = estado.apellido,
+                    email = estado.email,
+                    password = estado.password, // En un proyecto real, ¡esto debería estar encriptado!
                     telefono = estado.telefono,
                     direccion = estado.direccion,
                     ciudad = estado.ciudad
                 )
+                userDao.insertUsuario(nuevoUsuario)
 
-                _uiState.update { it.copy(isLoading = false) }
-                onSuccess()
+                iniciarSesion(onSuccess)
+
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false) }
+                _uiState.update { it.copy(isLoading = false, errores = FormularioError(errorGeneral = "Error: ${e.message}")) }
             }
         }
     }
 }
-

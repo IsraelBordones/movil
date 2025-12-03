@@ -1,6 +1,5 @@
 package com.example.levelup.ui.screen
 
-
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -12,28 +11,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.levelup.viewmodel.AuthViewModel
+import com.example.levelup.viewmodel.AuthViewModelFactory
 
 @Composable
-fun LoginScreen(authViewModel: AuthViewModel = viewModel()) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(LocalContext.current))
+) {
 
-    // Variables para capturar lo que escribe el usuario
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
+    val uiState by authViewModel.uiState.collectAsState()
     val context = LocalContext.current
-
-    // Observamos el mensaje del ViewModel (Error o Éxito)
-    val mensaje by authViewModel.mensajeError.collectAsState()
-
-    // Observamos si hay usuario logueado
-    val usuarioLogueado by authViewModel.usuarioLogueado.collectAsState()
-
-    // Efecto secundario: Si el login es exitoso o hay error, mostramos un Toast
-    LaunchedEffect(mensaje) {
-        if (mensaje.isNotEmpty()) {
-            Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -47,38 +34,57 @@ fun LoginScreen(authViewModel: AuthViewModel = viewModel()) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = uiState.email,
+            onValueChange = { authViewModel.actualizarEmail(it) },
             label = { Text("Correo Electrónico") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = uiState.errores.email != null,
+            singleLine = true
         )
+        if (uiState.errores.email != null) {
+            Text(
+                text = uiState.errores.email!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = uiState.password,
+            onValueChange = { authViewModel.actualizarPassword(it) },
             label = { Text("Contraseña") },
-            visualTransformation = PasswordVisualTransformation(), // Oculta la clave con puntitos
-            modifier = Modifier.fillMaxWidth()
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+            isError = uiState.errores.password != null,
+            singleLine = true
         )
+        if (uiState.errores.password != null) {
+            Text(
+                text = uiState.errores.password!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                authViewModel.login(email, password)
+                authViewModel.iniciarSesion {
+                    Toast.makeText(context, "Login Exitoso", Toast.LENGTH_SHORT).show()
+                    onLoginSuccess()
+                }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = uiState.esFormularioValido && !uiState.isLoading
         ) {
-            Text("Entrar")
-        }
-
-        // Mostrar datos si ya entró
-        if (usuarioLogueado != null) {
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(text = "¡Hola, ${usuarioLogueado!!.nombreUsuario}!", color = MaterialTheme.colorScheme.primary)
-            Text(text = "Tu ID es: ${usuarioLogueado!!.id}")
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else {
+                Text("Entrar")
+            }
         }
     }
 }

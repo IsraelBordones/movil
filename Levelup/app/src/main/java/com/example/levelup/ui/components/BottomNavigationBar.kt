@@ -1,17 +1,10 @@
 package com.example.levelup.ui.components
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.levelup.navigation.Destinations
 
 @Composable
@@ -19,28 +12,24 @@ fun BottomNavigationBar(
     currentRoute: String?,
     onNavigate: (String) -> Unit
 ) {
+    // Ahora la lista de items se basa directamente en nuestra clase sellada `Destinations`
     val items = listOf(
-        NavigationItem(Destinations.HomeScreen.route, "Home", Icons.Default.Home),
-        NavigationItem(Destinations.FavsScreen.route, "Favs", Icons.Default.Star),
-        NavigationItem(Destinations.SearchScreen.route, "Search", Icons.Default.Search),
-        NavigationItem(Destinations.PerfilScreen.route, "Perfil", Icons.Default.Person),
-        NavigationItem(Destinations.CatalogoScreen.route, "Catálogo", Icons.Default.ShoppingCart)
+        Destinations.HomeScreen,
+        Destinations.CatalogoScreen,
+        Destinations.SearchScreen,
+        Destinations.CarritoScreen, // <-- AÑADIDO
+        Destinations.FavsScreen,
+        Destinations.PerfilScreen
     )
 
     NavigationBar {
-        items.forEach { item ->
+        items.forEach { screen ->
             NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label) },
-                selected = currentRoute == item.route,
-                onClick = { onNavigate(item.route) }
+                icon = { Icon(screen.icon, contentDescription = screen.title) },
+                label = { Text(screen.title) },
+                selected = currentRoute == screen.route,
+                onClick = { onNavigate(screen.route) }
             )
         }
     }
 }
-
-data class NavigationItem(
-    val route: String,
-    val label: String,
-    val icon: ImageVector
-)

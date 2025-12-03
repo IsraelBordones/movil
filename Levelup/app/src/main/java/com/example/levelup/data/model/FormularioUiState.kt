@@ -1,4 +1,6 @@
-package com.example.levelup.model
+package com.example.levelup.data.model
+
+// NO SE NECESITA IMPORTAR FormularioError PORQUE ESTÁN EN EL MISMO PAQUETE
 
 data class FormularioUiState(
     val nombre: String = "",
@@ -14,4 +16,3 @@ data class FormularioUiState(
     val isLoading: Boolean = false,
     val esFormularioValido: Boolean = false
 )
-

@@ -1,35 +1,26 @@
 package com.example.levelup.data
 
 import com.example.levelup.data.dao.ProductDao
-import com.example.levelup.data.model.Producto // <-- ¡ESTA ES LA CORRECCIÓN DEFINITIVA!
+import com.example.levelup.data.model.Producto
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 
+/**
+ * Repositorio que maneja el acceso a los datos de los productos.
+ * Es la única fuente de verdad para los datos de productos en la app.
+ */
 class ProductosRepository(private val productDao: ProductDao) {
 
-    val todosLosProductos: Flow<List<Producto>> = productDao.getAllProducts()
+    /**
+     * Obtiene todos los productos de la base de datos como un Flow.
+     * La UI puede observar este Flow para reaccionar a los cambios automáticamente.
+     */
+    fun getAllProducts(): Flow<List<Producto>> = productDao.getAllProducts()
 
-    suspend fun obtenerProductos(): List<Producto> {
-        return productDao.getAllProducts().first()
-    }
-
-    suspend fun obtenerProductosPorCategoria(categoria: String): List<Producto> {
-        val productos = productDao.getAllProducts().first()
-        return productos.filter { it.categoria.equals(categoria, ignoreCase = true) }
-    }
-
-    suspend fun buscarProductos(query: String): List<Producto> {
-        val queryLower = query.lowercase()
-        val productos = productDao.getAllProducts().first()
-        return productos.filter {
-            it.nombre.lowercase().contains(queryLower) ||
-                    it.descripcion.lowercase().contains(queryLower) ||
-                    it.categoria.lowercase().contains(queryLower)
-        }
-    }
-
-    suspend fun obtenerCategorias(): List<String> {
-        val productos = productDao.getAllProducts().first()
-        return productos.map { it.categoria }.distinct()
+    /**
+     * Inserta una lista de productos en la base de datos.
+     * Esta función se podría usar para poblar la base de datos inicialmente o para actualizaciones.
+     */
+    suspend fun insertAll(productos: List<Producto>) {
+        productDao.insertAll(productos)
     }
 }

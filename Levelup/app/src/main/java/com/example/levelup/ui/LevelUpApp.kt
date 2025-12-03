@@ -19,12 +19,16 @@ import com.example.levelup.ui.screen.FavsScreen
 import com.example.levelup.ui.screen.InicioScreen
 import com.example.levelup.ui.screen.PerfilScreen
 import com.example.levelup.ui.screen.SearchScreen
+import com.example.levelup.ui.screen.CarritoScreen // <-- IMPORTADO
 import com.example.levelup.viewmodel.PostViewModel
 import com.example.levelup.viewmodel.PostViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LevelUpApp(postViewModelFactory: PostViewModelFactory) {
+fun LevelUpApp(
+    postViewModelFactory: PostViewModelFactory,
+    onLogout: () -> Unit
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -35,9 +39,7 @@ fun LevelUpApp(postViewModelFactory: PostViewModelFactory) {
                 currentRoute = currentRoute,
                 onNavigate = { route ->
                     navController.navigate(route) {
-                        // Evita que se acumulen múltiples copias de la misma pantalla
                         launchSingleTop = true
-                        // Restaura el estado al volver a una pantalla
                         restoreState = true
                     }
                 }
@@ -53,10 +55,13 @@ fun LevelUpApp(postViewModelFactory: PostViewModelFactory) {
                     val postViewModel: PostViewModel = viewModel(factory = postViewModelFactory)
                     InicioScreen(viewModel = postViewModel, navController = navController)
                 }
-                composable(Destinations.FavsScreen.route) { FavsScreen() }
+                composable(Destinations.CatalogoScreen.route) {
+                    CatalogoScreen(onLogout = onLogout)
+                }
                 composable(Destinations.SearchScreen.route) { SearchScreen() }
+                composable(Destinations.CarritoScreen.route) { CarritoScreen() } // <-- AÑADIDO
+                composable(Destinations.FavsScreen.route) { FavsScreen() }
                 composable(Destinations.PerfilScreen.route) { PerfilScreen() }
-                composable(Destinations.CatalogoScreen.route) { CatalogoScreen() }
             }
         }
     }
