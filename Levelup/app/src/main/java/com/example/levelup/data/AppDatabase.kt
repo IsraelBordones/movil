@@ -7,13 +7,14 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.levelup.data.dao.ProductDao
 import com.example.levelup.data.dao.UserDao
-import com.example.levelup.data.model.Producto // <-- CORREGIDO
-import com.example.levelup.data.model.Usuario    // <-- CORREGIDO
+import com.example.levelup.data.model.Producto
+import com.example.levelup.data.model.Usuario
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Producto::class, Usuario::class], version = 1, exportSchema = false)
+// ⚠️ CAMBIO 1: Subimos la version a 2
+@Database(entities = [Producto::class, Usuario::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun productDao(): ProductDao
@@ -25,12 +26,15 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                // Si la base de datos cambia de estructura, .fallbackToDestructiveMigration() evita que la app crashee
+                // borrando la base antigua y creando una nueva.
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "levelup_database"
                 )
                     .addCallback(AppDatabaseCallback())
+                    .fallbackToDestructiveMigration() // Agregamos esto por seguridad al cambiar versiones
                     .build()
                 INSTANCE = instance
                 instance
@@ -49,8 +53,13 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(productDao: ProductDao, userDao: UserDao) {
+            // ⚠️ CAMBIO 2: Le ponemos password al usuario inicial para poder probar el Login
             val initialUsers = listOf(
-                Usuario(nombreUsuario = "israel_dev", email = "israel@example.com")
+                Usuario(
+                    nombreUsuario = "israel_dev",
+                    email = "israel@example.com",
+                    password = "123456" // ¡Contraseña necesaria!
+                )
             )
             userDao.insertAll(initialUsers)
 
