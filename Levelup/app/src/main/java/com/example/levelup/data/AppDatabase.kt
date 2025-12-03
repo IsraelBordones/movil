@@ -15,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Producto::class, Usuario::class, CarritoItem::class], version = 4, exportSchema = false)
+@Database(entities = [Producto::class, Usuario::class, CarritoItem::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun productDao(): ProductDao
@@ -53,9 +53,12 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         suspend fun populateDatabase(productDao: ProductDao, userDao: UserDao) {
-            userDao.insertAll(listOf(
-                Usuario(nombreUsuario = "israel_dev", email = "israel@example.com", password = "123456")
-            ))
+            val initialUsers = listOf(
+                Usuario(nombreUsuario = "israel_dev", email = "israel@example.com", password = "123456", role = "CLIENTE"),
+                // AÑADIDO: Usuario Administrador
+                Usuario(nombreUsuario = "admin", email = "admin@levelup.com", password = "admin123", role = "ADMIN")
+            )
+            userDao.insertAll(initialUsers)
 
             val initialProducts = listOf(
                 Producto(

@@ -19,13 +19,7 @@ import com.example.levelup.ui.screen.LoginScreen
 import com.example.levelup.ui.screen.RegisterScreen
 import com.example.levelup.viewmodel.MainViewModel
 
-// Definición de las rutas principales
-object Routes {
-    const val AUTH_GRAPH = "auth_graph"
-    const val LOGIN = "login"
-    const val REGISTER = "register"
-    const val MAIN_GRAPH = "main_graph"
-}
+// AHORA LAS RUTAS SE OBTIENEN DESDE EL ARCHIVO Destinations.kt
 
 @Composable
 fun AppNavigation(
@@ -34,14 +28,14 @@ fun AppNavigation(
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
 
-    when (uiState) {
+    when (val state = uiState) {
         is MainUiState.Loading -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
         else -> {
-            val startDestination = if (uiState is MainUiState.LoggedIn) Routes.MAIN_GRAPH else Routes.AUTH_GRAPH
+            val startDestination = if (state is MainUiState.LoggedIn) Routes.MAIN_GRAPH else Routes.AUTH_GRAPH
 
             NavHost(navController = navController, startDestination = startDestination) {
 
@@ -67,7 +61,9 @@ fun AppNavigation(
                 }
 
                 composable(Routes.MAIN_GRAPH) {
+                    val userRole = if (state is MainUiState.LoggedIn) state.userRole else "CLIENTE"
                     LevelUpApp(
+                        userRole = userRole,
                         onLogout = {
                             navController.navigate(Routes.AUTH_GRAPH) {
                                 popUpTo(Routes.MAIN_GRAPH) { inclusive = true }

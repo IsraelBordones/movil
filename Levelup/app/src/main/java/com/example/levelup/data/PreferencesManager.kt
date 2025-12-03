@@ -8,74 +8,68 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "levelup_prefs")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
 
-class PreferencesManager(private val context: Context) {
+class PreferencesManager(context: Context) {
+
+    private val appContext = context.applicationContext
+
     companion object {
-        val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
-        val USER_ID = stringPreferencesKey("user_id")
-        val USER_EMAIL = stringPreferencesKey("user_email")
-        val USER_NOMBRE = stringPreferencesKey("user_nombre")
-        val USER_APELLIDO = stringPreferencesKey("user_apellido")
-        val USER_TELEFONO = stringPreferencesKey("user_telefono")
-        val USER_DIRECCION = stringPreferencesKey("user_direccion")
-        val USER_CIUDAD = stringPreferencesKey("user_ciudad")
+        private val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+        private val USER_ID = stringPreferencesKey("user_id")
+        private val USER_EMAIL = stringPreferencesKey("user_email")
+        private val USER_NOMBRE = stringPreferencesKey("user_nombre")
+        private val USER_APELLIDO = stringPreferencesKey("user_apellido")
+        private val USER_TELEFONO = stringPreferencesKey("user_telefono")
+        private val USER_DIRECCION = stringPreferencesKey("user_direccion")
+        private val USER_CIUDAD = stringPreferencesKey("user_ciudad")
+        private val USER_ROLE = stringPreferencesKey("user_role")
     }
 
-    val isLoggedIn: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[IS_LOGGED_IN] ?: false
-    }
+    val isLoggedIn: Flow<Boolean> =
+        appContext.dataStore.data.map { preferences ->
+            preferences[IS_LOGGED_IN] ?: false
+        }
 
-    val userId: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USER_ID] ?: ""
-    }
+    val userId: Flow<String?> =
+        appContext.dataStore.data.map { preferences ->
+            preferences[USER_ID]
+        }
+
+    val userRole: Flow<String?> =
+        appContext.dataStore.data.map { preferences ->
+            preferences[USER_ROLE]
+        }
 
     suspend fun saveLoginState(
         isLoggedIn: Boolean,
-        userId: String = "",
-        email: String = "",
-        nombre: String = "",
-        apellido: String = "",
-        telefono: String = "",
-        direccion: String = "",
-        ciudad: String = ""
+        userId: String,
+        email: String,
+        nombre: String,
+        apellido: String,
+        telefono: String,
+        direccion: String,
+        ciudad: String,
+        role: String
     ) {
-        context.dataStore.edit { preferences ->
-            preferences[IS_LOGGED_IN] = isLoggedIn
-            if (isLoggedIn) {
-                preferences[USER_ID] = userId
-                preferences[USER_EMAIL] = email
-                preferences[USER_NOMBRE] = nombre
-                preferences[USER_APELLIDO] = apellido
-                preferences[USER_TELEFONO] = telefono
-                preferences[USER_DIRECCION] = direccion
-                preferences[USER_CIUDAD] = ciudad
-            } else {
-                preferences.remove(USER_ID)
-                preferences.remove(USER_EMAIL)
-                preferences.remove(USER_NOMBRE)
-                preferences.remove(USER_APELLIDO)
-                preferences.remove(USER_TELEFONO)
-                preferences.remove(USER_DIRECCION)
-                preferences.remove(USER_CIUDAD)
-            }
+        appContext.dataStore.edit { prefs -> // Corregido el nombre del parámetro
+            prefs[IS_LOGGED_IN] = isLoggedIn
+            prefs[USER_ID] = userId
+            prefs[USER_EMAIL] = email
+            prefs[USER_NOMBRE] = nombre
+            prefs[USER_APELLIDO] = apellido
+            prefs[USER_TELEFONO] = telefono
+            prefs[USER_DIRECCION] = direccion
+            prefs[USER_CIUDAD] = ciudad
+            prefs[USER_ROLE] = role
         }
     }
 
-    suspend fun getUserData(): Map<String, String> {
-        val prefs = context.dataStore.data.first()
-        return mapOf(
-            "id" to (prefs[USER_ID] ?: ""),
-            "email" to (prefs[USER_EMAIL] ?: ""),
-            "nombre" to (prefs[USER_NOMBRE] ?: ""),
-            "apellido" to (prefs[USER_APELLIDO] ?: ""),
-            "telefono" to (prefs[USER_TELEFONO] ?: ""),
-            "direccion" to (prefs[USER_DIRECCION] ?: ""),
-            "ciudad" to (prefs[USER_CIUDAD] ?: "")
-        )
+    suspend fun clearLoginState() {
+        appContext.dataStore.edit {
+            it.clear()
+        }
     }
 }
-

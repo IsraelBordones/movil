@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "usuarios")
 data class Usuario(
-    @field:PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val nombreUsuario: String = "",
     val password: String = "",
@@ -13,5 +13,6 @@ data class Usuario(
     val email: String = "",
     val telefono: String = "",
     val direccion: String = "",
-    val ciudad: String = ""
+    val ciudad: String = "",
+    val role: String = "CLIENTE" // <-- CAMPO AÑADIDO
 )
