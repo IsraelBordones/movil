@@ -1,7 +1,15 @@
 package com.example.levelup.ui.screen
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -9,7 +17,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,7 +43,8 @@ import com.example.levelup.viewmodel.PerfilViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(
-    perfilViewModel: PerfilViewModel = hiltViewModel() // Inyectado con Hilt
+    perfilViewModel: PerfilViewModel = hiltViewModel(), // Inyectado con Hilt
+    onLogout: () -> Unit
 ) {
     val uiState by perfilViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -123,6 +141,19 @@ fun PerfilScreen(
 
                     // Campo no editable
                     ProfileInfo(label = "Apellido", value = usuario.apellido)
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Botón para cerrar sesión
+                    Button(
+                        onClick = {
+                            perfilViewModel.cerrarSesion()
+                            onLogout()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Cerrar Sesión")
+                    }
                 }
             }
         }

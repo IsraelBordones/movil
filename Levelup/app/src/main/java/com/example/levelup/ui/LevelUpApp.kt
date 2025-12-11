@@ -63,7 +63,9 @@ fun LevelUpApp(
                 composable(BottomBarScreen.SearchScreen.route) { SearchScreen() }
                 composable(BottomBarScreen.CarritoScreen.route) { CarritoScreen() }
                 composable(BottomBarScreen.FavsScreen.route) { FavsScreen() }
-                composable(BottomBarScreen.PerfilScreen.route) { PerfilScreen() }
+                composable(BottomBarScreen.PerfilScreen.route) { 
+                    PerfilScreen(onLogout = onLogout) 
+                }
 
                 // AÑADIDO: Composable para la pantalla de edición
                 composable(

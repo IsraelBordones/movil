@@ -62,4 +62,10 @@ class PerfilViewModel @Inject constructor(
             }
         }
     }
+
+    fun cerrarSesion() {
+        viewModelScope.launch {
+            preferencesManager.clearLoginState()
+        }
+    }
 }
