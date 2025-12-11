@@ -1,11 +1,25 @@
 package com.example.levelup.ui.screen
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -17,13 +31,13 @@ import com.example.levelup.viewmodel.AuthViewModel
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
-    authViewModel: AuthViewModel = hiltViewModel() // Inyectado con Hilt
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
-
     val uiState by authViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    // Set the form mode to register if it's currently in login mode
+    LaunchedEffect(uiState.esLogin) {
         if (uiState.esLogin) {
             authViewModel.toggleModoFormulario()
         }
@@ -37,10 +51,10 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Crear Cuenta", style = MaterialTheme.typography.headlineMedium)
-
+        Text(text = "Registro de Usuario", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Name
         OutlinedTextField(
             value = uiState.nombre,
             onValueChange = { authViewModel.actualizarNombre(it) },
@@ -49,11 +63,12 @@ fun RegisterScreen(
             isError = uiState.errores.nombre != null,
             singleLine = true
         )
-        if (uiState.errores.nombre != null) {
-            Text(text = uiState.errores.nombre!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        uiState.errores.nombre?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Apellido
         OutlinedTextField(
             value = uiState.apellido,
             onValueChange = { authViewModel.actualizarApellido(it) },
@@ -62,11 +77,12 @@ fun RegisterScreen(
             isError = uiState.errores.apellido != null,
             singleLine = true
         )
-        if (uiState.errores.apellido != null) {
-            Text(text = uiState.errores.apellido!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        uiState.errores.apellido?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Email
         OutlinedTextField(
             value = uiState.email,
             onValueChange = { authViewModel.actualizarEmail(it) },
@@ -75,50 +91,12 @@ fun RegisterScreen(
             isError = uiState.errores.email != null,
             singleLine = true
         )
-        if (uiState.errores.email != null) {
-            Text(text = uiState.errores.email!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        uiState.errores.email?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = uiState.telefono,
-            onValueChange = { authViewModel.actualizarTelefono(it) },
-            label = { Text("Teléfono") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = uiState.errores.telefono != null,
-            singleLine = true
-        )
-        if (uiState.errores.telefono != null) {
-            Text(text = uiState.errores.telefono!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = uiState.direccion,
-            onValueChange = { authViewModel.actualizarDireccion(it) },
-            label = { Text("Dirección") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = uiState.errores.direccion != null,
-            singleLine = true
-        )
-        if (uiState.errores.direccion != null) {
-            Text(text = uiState.errores.direccion!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = uiState.ciudad,
-            onValueChange = { authViewModel.actualizarCiudad(it) },
-            label = { Text("Ciudad") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = uiState.errores.ciudad != null,
-            singleLine = true
-        )
-        if (uiState.errores.ciudad != null) {
-            Text(text = uiState.errores.ciudad!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
+        // Password
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { authViewModel.actualizarPassword(it) },
@@ -128,11 +106,12 @@ fun RegisterScreen(
             isError = uiState.errores.password != null,
             singleLine = true
         )
-        if (uiState.errores.password != null) {
-            Text(text = uiState.errores.password!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        uiState.errores.password?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Confirm Password
         OutlinedTextField(
             value = uiState.confirmarPassword,
             onValueChange = { authViewModel.actualizarConfirmarPassword(it) },
@@ -142,20 +121,52 @@ fun RegisterScreen(
             isError = uiState.errores.confirmarPassword != null,
             singleLine = true
         )
-        if (uiState.errores.confirmarPassword != null) {
-            Text(text = uiState.errores.confirmarPassword!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        uiState.errores.confirmarPassword?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
+        Spacer(modifier = Modifier.height(8.dp))
 
+        // Telefono
+        OutlinedTextField(
+            value = uiState.telefono,
+            onValueChange = { authViewModel.actualizarTelefono(it) },
+            label = { Text("Teléfono") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = uiState.errores.telefono != null,
+            singleLine = true
+        )
+        uiState.errores.telefono?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Direccion
+        OutlinedTextField(
+            value = uiState.direccion,
+            onValueChange = { authViewModel.actualizarDireccion(it) },
+            label = { Text("Dirección") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = uiState.errores.direccion != null,
+            singleLine = true
+        )
+        uiState.errores.direccion?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Ciudad
+        OutlinedTextField(
+            value = uiState.ciudad,
+            onValueChange = { authViewModel.actualizarCiudad(it) },
+            label = { Text("Ciudad") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = uiState.errores.ciudad != null,
+            singleLine = true
+        )
+        uiState.errores.ciudad?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
         Spacer(modifier = Modifier.height(16.dp))
-
-        if (uiState.errores.errorGeneral != null) {
-            Text(
-                text = uiState.errores.errorGeneral!!,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
 
         Button(
             onClick = {
@@ -172,6 +183,11 @@ fun RegisterScreen(
             } else {
                 Text("Registrarse")
             }
+        }
+        
+        uiState.errores.errorGeneral?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

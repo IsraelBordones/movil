@@ -15,6 +15,7 @@ import com.example.levelup.viewmodel.AuthViewModel
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
+    onNavigateToRegister: () -> Unit, // AÑADIDO
     authViewModel: AuthViewModel = hiltViewModel() // Inyectado con Hilt
 ) {
 
@@ -84,6 +85,13 @@ fun LoginScreen(
             } else {
                 Text("Entrar")
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // AÑADIDO: Botón para ir a la pantalla de registro
+        TextButton(onClick = onNavigateToRegister) {
+            Text("¿No tienes una cuenta? Regístrate aquí")
         }
     }
 }

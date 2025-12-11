@@ -46,6 +46,9 @@ fun AppNavigation(
                                 navController.navigate(Routes.MAIN_GRAPH) {
                                     popUpTo(Routes.AUTH_GRAPH) { inclusive = true }
                                 }
+                            },
+                            onNavigateToRegister = { // AÑADIDO
+                                navController.navigate(Routes.REGISTER)
                             }
                         )
                     }
