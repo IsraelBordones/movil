@@ -15,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Producto::class, Usuario::class, CarritoItem::class], version = 5, exportSchema = false)
+@Database(entities = [Producto::class, Usuario::class, CarritoItem::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun productDao(): ProductDao
@@ -63,19 +63,19 @@ abstract class AppDatabase : RoomDatabase() {
             val initialProducts = listOf(
                 Producto(
                     id = 1, nombre = "Elden Ring", descripcion = "Juego de rol de acción...", precio = 59.99, categoria = "RPG", stock = 50,
-                    imagen = "https://image.api.playstation.com/vulcan/ap/rnd/202110/2000/aG3I2Lp4bS02S0f2n1vGjY28.png"
+                    imagen = "https://i.imgur.com/PqzEmqe.png"
                 ),
                 Producto(
                     id = 2, nombre = "Cyberpunk 2077", descripcion = "Aventura de acción y rol...", precio = 49.99, categoria = "RPG", stock = 30,
-                    imagen = "https://image.api.playstation.com/vulcan/img/rnd/202107/0812/65M2A0sA1uFwGish2yMKs3b4.png"
+                    imagen = "https://i.imgur.com/BzTMKDW.png"
                 ),
                 Producto(
                     id = 3, nombre = "Baldur's Gate 3", descripcion = "El aclamado RPG...", precio = 59.99, categoria = "RPG", stock = 100,
-                    imagen = "https://image.api.playstation.com/vulcan/ap/rnd/202302/2321/306b7a73132a76a2732a365319999a385417a26248e3fb76.png"
+                    imagen = "https://i.imgur.com/NaxaUtl.png"
                 ),
                 Producto(
                     id = 4, nombre = "Stardew Valley", descripcion = "Simulador de granja...", precio = 14.99, categoria = "Simulación", stock = 200,
-                    imagen = "https://image.api.playstation.com/vulcan/img/rnd/202010/2614/jSoF5pc2A5aDA2aI5y2o3j2e.png"
+                    imagen = "https://i.imgur.com/zZ8mJdY.png"
                 )
             )
             productDao.insertAll(initialProducts)
